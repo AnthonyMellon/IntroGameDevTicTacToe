@@ -10,8 +10,9 @@ public class Board : MonoBehaviour
     const int BOARD_HEIGHT = 3;
 
     [SerializeField] private BoardCell _cellPrefab;
-
-    BoardCell[,] pieces = new BoardCell[BOARD_WIDTH, BOARD_HEIGHT];
+    BoardCell[,] cells = new BoardCell[BOARD_WIDTH, BOARD_HEIGHT];
+    public int currentPlayer;
+    public List<Sprite> playerSprites;
 
     private void Start()
     {
@@ -20,7 +21,16 @@ public class Board : MonoBehaviour
 
     private void Update()
     {
-       
+        if(Input.GetKeyDown(KeyCode.R))
+        {
+            NewGame();
+        }
+    }
+
+    public void NewGame()
+    {
+        ResetAllCells();
+        currentPlayer = 0;
     }
 
     public void PlaceCells()
@@ -39,26 +49,50 @@ public class Board : MonoBehaviour
     {
         BoardCell placedCell = Instantiate(_cellPrefab, transform);
         placedCell.transform.position = position;
+        placedCell.onPiecePlaced += OnPiecePlaced;
 
-        pieces[index.x, index.y] = placedCell;
+        cells[index.x, index.y] = placedCell;
     }
 
     private void DestroyAllCells()
     {        
-        for(int x = 0; x < pieces.GetUpperBound(0) + 1; x++)
+        for(int x = 0; x < cells.GetUpperBound(0) + 1; x++)
         {
-            for (int y = 0; y < pieces.GetUpperBound(1) + 1; y++)
+            for (int y = 0; y < cells.GetUpperBound(1) + 1; y++)
             {
-                if (pieces[x, y] == null) continue;
+                if (cells[x, y] == null) continue;
 
-                Destroy(pieces[x, y].gameObject);
-                pieces[x, y] = null;
+                Destroy(cells[x, y].gameObject);
+                cells[x, y] = null;
             }
         }        
     }
 
     private void ResetAllCells()
     {
+        for (int x = 0; x < cells.GetUpperBound(0) + 1; x++)
+        {
+            for (int y = 0; y < cells.GetUpperBound(1) + 1; y++)
+            {
+                if (cells[x, y] == null) continue;
 
+                cells[x, y].owner = -1;
+                cells[x, y].tile.sprite = null;
+            }
+        }
+    }
+
+    public void OnPiecePlaced(BoardCell cell)
+    {
+        cell.owner = currentPlayer;
+        cell.tile.sprite = playerSprites[currentPlayer];
+
+        switchPlayer();
+    }
+
+    private void switchPlayer()
+    {
+        currentPlayer++;
+        currentPlayer %= 2;
     }
 }
