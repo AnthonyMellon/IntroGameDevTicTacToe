@@ -82,17 +82,130 @@ public class Board : MonoBehaviour
         }
     }
 
+    private void switchPlayer()
+    {
+        currentPlayer++;
+        currentPlayer %= 2;
+    }
+
+    private int CheckWin()
+    {
+        int winner = -1;
+
+        for(int i = 0; i < BOARD_WIDTH; i++)
+        {
+            if(winner == -1) winner = CheckWinOnRow(i);
+            if (winner == -1) winner = CheckWinOnCol(i);
+        }
+
+        if (winner == -1) winner = CheckWinOnDiag(true);
+        if (winner == -1) winner = CheckWinOnDiag(false);
+
+        return winner;
+    }
+
+    private int CheckWinOnRow(int row)
+    {
+        if (
+            cells[0, row].owner == 0
+            && cells[1, row].owner == 0
+            && cells[2, row].owner == 0
+        ) return 0;
+
+        if (
+            cells[0, row].owner == 1
+            && cells[1, row].owner == 1
+            && cells[2, row].owner == 1
+        ) return 1;
+
+        return -1;
+    }
+
+    private int CheckWinOnCol(int col)
+    {
+        if (
+            cells[col, 0].owner == 0
+            && cells[col, 1].owner == 0
+            && cells[col, 2].owner == 0
+        ) return 0;
+
+        if (
+            cells[col, 0].owner == 1
+            && cells[col, 1].owner == 1
+            && cells[col, 2].owner == 1
+        ) return 1;
+
+        return -1;
+    }
+
+    private bool checkForDraw()
+    {
+        for(int x = 0; x < cells.GetUpperBound(0); x++)
+        {
+            for(int y = 0; y < cells.GetUpperBound(1); y++)
+            {
+                if (cells[x, y].owner == -1) return false;
+            }
+        }
+
+        return true;
+    }
+
+    private int CheckWinOnDiag(bool TopRightToBottomLeft)
+    {
+        if(TopRightToBottomLeft)
+        {
+            if (
+                cells[0, 0].owner == 0
+                && cells[1, 1].owner == 0
+                && cells[2, 2].owner == 0
+            ) return 0;
+
+            if (
+                cells[0, 0].owner == 1
+                && cells[1, 1].owner == 1
+                && cells[2, 2].owner == 1
+            ) return 1;
+        }
+        else
+        {
+            if (
+                cells[2, 0].owner == 0
+                && cells[1, 1].owner == 0
+                && cells[0, 2].owner == 0
+            ) return 0;
+
+            if (
+                cells[2, 0].owner == 1
+                && cells[1, 1].owner == 1
+                && cells[0, 2].owner == 1
+            ) return 1;
+        }
+
+        return -1;
+    }
+
     public void OnPiecePlaced(BoardCell cell)
     {
         cell.owner = currentPlayer;
         cell.tile.sprite = playerSprites[currentPlayer];
 
-        switchPlayer();
-    }
+        int winner = CheckWin();       
 
-    private void switchPlayer()
-    {
-        currentPlayer++;
-        currentPlayer %= 2;
+        if (winner != -1)
+        {
+            Debug.Log($"Player {winner + 1} wins");
+            Debug.Log("Press 'R' to reset");
+        }
+        else if(checkForDraw())
+        {
+            Debug.Log($"Draw!");
+            Debug.Log("Press 'R' to reset");
+        }
+
+        else
+        {
+            switchPlayer();
+        }
     }
 }
