@@ -11,6 +11,7 @@ public class BoardCell : MonoBehaviour
     public float size = 2.5f;
     public SpriteRenderer tile;    
     public int owner;
+    public Board board;
 
     public delegate void onPiecePlacedHandler(BoardCell cell);
     public onPiecePlacedHandler onPiecePlaced;
@@ -18,12 +19,21 @@ public class BoardCell : MonoBehaviour
     private void Start()
     {        
         owner = -1;
+        board = transform.parent.GetComponent<Board>();
     }
 
     private void OnMouseDown()
     {
-        if(owner == -1)
-        {            
+        if(board.currentPlayer == 0)
+        {
+            PlacePiece();
+        }
+    }
+
+    public void PlacePiece()
+    {
+        if (owner == -1)
+        {
             onPiecePlaced.Invoke(this);
         }
     }

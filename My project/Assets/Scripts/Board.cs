@@ -6,17 +6,19 @@ using UnityEngine;
 
 public class Board : MonoBehaviour
 {
-    const int BOARD_WIDTH = 3;
-    const int BOARD_HEIGHT = 3;
+    public const int BOARD_WIDTH = 3;
+    public const int BOARD_HEIGHT = 3;
 
     [SerializeField] private BoardCell _cellPrefab;
-    BoardCell[,] cells = new BoardCell[BOARD_WIDTH, BOARD_HEIGHT];
+    public BoardCell[,] cells = new BoardCell[BOARD_WIDTH, BOARD_HEIGHT];
     public int currentPlayer;
     public List<Sprite> playerSprites;
+    private AI _ai;
 
     private void Start()
     {
         PlaceCells();
+        _ai = new AI(this);
     }
 
     private void Update()
@@ -86,6 +88,8 @@ public class Board : MonoBehaviour
     {
         currentPlayer++;
         currentPlayer %= 2;
+
+        if (currentPlayer == 1) _ai.PlacePiece();
     }
 
     private int CheckWin()
@@ -140,9 +144,9 @@ public class Board : MonoBehaviour
 
     private bool checkForDraw()
     {
-        for(int x = 0; x < cells.GetUpperBound(0); x++)
+        for(int x = 0; x < cells.GetUpperBound(0) + 1; x++)
         {
-            for(int y = 0; y < cells.GetUpperBound(1); y++)
+            for(int y = 0; y < cells.GetUpperBound(1) + 1; y++)
             {
                 if (cells[x, y].owner == -1) return false;
             }
